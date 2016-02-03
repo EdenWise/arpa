@@ -1,7 +1,6 @@
 #!/usr/bin/bash
 # (ar)ch (pa)ckages — wrapper script for Arch Linux package tasks
 
-
 help_prnt () {
   echo ""${0##*/}" [option] [*package] — wrapper script for Arch Linux package tasks
   -e, --explicit - install a package as explicit
@@ -16,9 +15,9 @@ help_prnt () {
   -u, --upgrade  - upgrade system                  : -U upgrade AUR
   -y, --sync     - sync package db"; exit 1; }
 
-# Non-root user define sudo
+# regular user privilege escalation program
 if (( $EUID )); then
-  sudo=sudo; fi
+  hash sudo 2>&- && sudo=sudo; fi
 
 case $1 in
   -e | --explicit )
