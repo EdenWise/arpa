@@ -13,7 +13,7 @@ help_prnt () {
   -r, --remove   - remove a pkg and its deps       : -R force, no argue orphs
   -s, --search   - search for a package            : -S search w/ description
   -u, --upgrade  - upgrade system                  : -U upgrade AUR
-  -y, --sync     - sync package db"; exit 1; }
+  -y, --sync     - sync package db"; exit 2; }
 
 # regular user privilege escalation program
 if (( $EUID )); then
@@ -46,9 +46,16 @@ case $1 in
     shift; [ $# -gt 0 ] || help_prnt; pacman -Qql "$@" ;;
   -L | --pkglist )
     date=$(date +%F)
-    pacman -Qqe | grep -v "$(pacman -Qqm)" > pkglist-off_${date}.txt
-    pacman -Qqm                            > pkglist-loc_${date}.txt
-    echo "pkglists-built: pkglist-off_${date}.txt, pkglist-loc_${date}.txt" ;;
+    pkglist_loc="$(pacman -Qqm)"
+    if [ "$pkglist_loc" ] ; then
+      echo "$pkglist_loc"                   >| pkglist-loc_"$date" && echo \
+        pkglist-loc_"$date"
+      pacman -Qqen | grep -v "$pkglist_loc" >| pkglist-off_"$date" && echo \
+        pkglist-off_"$date"
+    else
+      pacman -Qqen                          >| pkglist-off_"$date" && echo \
+        pkglist-off_"$date"
+    fi ;;
   -o | --own )
     shift; [ $# -gt 0 ] || help_prnt; pacman -Qo  "$@" ;;
   -n | --info )
